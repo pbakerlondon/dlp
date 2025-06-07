@@ -1,0 +1,89 @@
+#!/bin/sh
+# basepath:	Basic directory for channels/user:
+# dir:		Channel directory
+
+# DECLARATIONS --------------------------------------------------------------
+
+  line="\n--------------------------------------------------------------------------------------\n"
+#  basepath='/run/user/1000/gvfs/sftp:host=ifs03,user=pi/mnt/data.8TiB_1/data.channels/'
+  basepath='/mnt/data.8TiB_4/data.channels.audio/'
+#  basepath='/media/pi/data.8TiB_1/data.channels/'
+  channel_depth="$1"
+#  download_rate="$2"
+  bold=$(tput bold)
+  normal=$(tput sgr0)
+  channels=0
+  channels_2_go=0
+  skipped_channels=0
+  downloaded_channels=0
+  time_start=$(date +"%T")
+
+# ROUTINES ------------------------------------------------------------------
+
+# Counting folders ----------------------------------------------------------
+  for dir in $basepath* ; do
+  channels_2_go=$((channels_2_go+1))
+  done
+  sum_channels=$channels_2_go
+# ---------------------------------------------------------------------------
+  echo
+  echo $(tput sgr0)Folders "("channels")": $channels_2_go$(tput sgr0)
+  echo $line
+
+  for dir in $basepath* ; do
+# still problems with space in path !!!
+  cd $dir
+# uses first detected .url file now ("*.url" instead of "$dir.url")
+  file=$(basename -- *.url)
+
+  channels=$((channels+1))
+
+  if [ -f $file ]
+    then
+    read -r url<$file
+
+    echo $(tput sgr0)Channel: $(tput sgr0) $(tput bold)$(basename -- $dir)$(tput sgr0) "("$channels"/"$sum_channels"/"mrx:$download_rate")"
+    echo $(tput sgr0)PATH:'\t' $(tput sgr0) $dir
+    echo $(tput sgr0)URL:'\t' $(tput sgr0) $url
+    if [ -z $channel_depth ]
+    then
+    echo $(tput sgr0)Depth:'\t' $(tput sgr0) "complete" "\n"
+    else
+    echo $(tput sgr0)Depth:'\t' $(tput sgr0) $channel_depth "\n"
+    fi
+
+    downloaded_channels=$((downloaded_channels+1))
+    channels_2_go=$((channels2_go-1))
+
+# test if $channel_depth is empty
+    if [ -z $channel_depth ]
+    then
+#    yt-dlp --no-warnings --extractor-args youtube:player-skip=js --match-filter "!is_live" -f b -ciw -o '%(title)s.%(ext)s' $url
+     yt-dlp --cookies-from-browser-firefox --no-warnings -x --audio-format mp3 --audio-quality 10 --match-filter "!is_live" -ciw -o '%(title)s.%(ext)s' $url
+#     yt-dlp --no-warnings -x --audio-format mp3 --audio-quality 10 --match-filter "!is_live" -ciw -o '%(title)s.%(ext)s' $url
+    else
+#    yt-dlp --no-warnings --extractor-args youtube:player-skip=js --match-filter "!is_live" --playlist-end $channel_depth -f b -ciw -o '%(title)s.%(ext)s' $url
+     yt-dlp --cookies-from-browser firefox --no-warnings -x --audio-format mp3 --audio-quality 10 --match-filter "!is_live" --playlist-end $channel_depth -ciw -o '%(title)s.%(ext)s' $url
+#     yt-dlp --no-warnings -x --audio-format mp3 --audio-quality 10 --match-filter "!is_live" --playlist-end $channel_depth -ciw -o '%(title)s.%(ext)s' $url
+    fi
+    echo
+    else
+    echo $(tput bold)$(tput setf 4)Skipping: $(tput sgr0)$(basename -- $dir)" (No URL file for channel in current directory)\n"
+    skipped_channels=$((skipped_channels+1))
+    fi
+
+  done
+
+echo $line
+
+time_end=$(date +"%T")
+
+SEC1=`date +%s -d ${time_start}`
+SEC2=`date +%s -d ${time_end}`
+
+DIFFSEC=`expr ${SEC2} - ${SEC1}`
+time_elapsed=`date +"%T" -ud @${DIFFSEC}`
+
+echo "$(tput bold)$(tput setab 2) Process complete $(tput sgr0)" "$(tput bold)CHs: $(tput sgr0)$channels $(tput bold) DLs: $(tput sgr0)$downloaded_channels $(tput bold) SKs: $(tput sgr0)$skipped_channels $(tput bold) ST:$(tput sgr0) $time_start $(tput bold) TOC:$(tput sgr0) $time_end $(tput bold) ET: $(tput sgr0)$time_elapsed $(tput sgr0)\n"
+
+# aplay -q $HOME/Music/data.sounds/all_channels_completed.wav

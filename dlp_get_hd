@@ -1,0 +1,5 @@
+#!/bin/sh
+
+yt-dlp --cookies-from-browser firefox --no-warnings -f bestvideo+bestaudio --merge-output-format mp4 --match-filter "!is_live" -ciw -o '%(title)s.%(ext)s' $1
+# aplay -q /$HOME/Music/data.sounds/Process_complete.wav &>/dev/null &
+echo

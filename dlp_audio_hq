@@ -1,0 +1,33 @@
+#!/bin/sh
+
+# use "-v" for verbose
+
+# --audio-format flags:
+#
+# best: the best available audio format (default)
+# aac: Advanced Audio Coding
+# flac: Free Lossless Audio Codec
+# mp3: MP3 audio
+# m4a: MPEG-4 Part 14 audio (AAC)
+# opus: Opus audio
+# vorbis: Vorbis audio
+# wav: WAVE audio
+
+# --audio-quality QUALITY
+#
+# Specify  ffmpeg  audio  quality  to  use when converting the audio with -x.
+# Insert a value between 0 (best) and 10 (worst) for VBR or a specific bitrate like 128K (default 5)
+
+
+# yt-dlp --no-warnings -x --audio-format mp3 --audio-quality 5 --match-filter "!is_live" -ciw -o '%(title)s.%(ext)s' $1
+
+    if [ -z "$2" ]
+	then
+        yt-dlp --cookies-from-browser firefox --no-warnings -x --audio-format mp3 --audio-quality 5 --match-filter "!is_live" -ciw -o '%(title)s.%(ext)s' $1
+	else
+        yt-dlp --cookies-from-browser firefox --no-warnings -x --audio-format mp3 --audio-quality 5 --match-filter "!is_live" --playlist-end $2 -ciw -o '%(title)s.%(ext)s' $1
+    fi
+
+
+# aplay /$HOME/Music/data.sounds/Process_complete.wav &>/dev/null &
+echo

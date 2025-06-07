@@ -1,0 +1,1 @@
+yt-dlp --write-comments --skip-download $1

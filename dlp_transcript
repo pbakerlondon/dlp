@@ -1,0 +1,7 @@
+# use "-v" for verbose
+yt-dlp --no-warnings --match-filter "!is_live" --write-auto-sub --skip-download --sub-lang en -ciw -o '%(title)s.%(ext)s' $1
+#youtube-dl -f best --match-filter "!is_live" -ciw -o '%(title)s.%(ext)s' $1
+#youtube-dl -f bestvideo+bestaudio --merge-output-format mkv -ciw -o '%(title)s.%(ext)s' $1 # ------ for best video and audio
+
+# aplay /$HOME/Music/data.sounds/Process_complete.wav &>/dev/null &
+echo
